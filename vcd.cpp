@@ -494,7 +494,7 @@ namespace vcd
             {
             case 1:
             {
-				if (pt_idx == -1 || pb_idx == -1) break; // should not happen, do not return any vcd paths
+				if (pt_idx == -1 || pb_idx == -1) return; // should not happen, do not return any vcd paths
 
                 if (points_equal(pt_l, pb_l)) trapezoid1.vertices = { pb_l, pb, pt };
 				else trapezoid1.vertices = { pt_l, pb_l, pb, pt };
@@ -510,7 +510,7 @@ namespace vcd
             }
             case 3:
             {
-				if (pt_idx == -1 || pb_idx == -1) break; // should not happen, do not return any vcd paths
+				if (pt_idx == -1 || pb_idx == -1) return; // should not happen, do not return any vcd paths
 
                 v_l_t = { pt_l.first, std::max(ep1.second, ep2.second) };
                 v_l_b = { pb_l.first, std::min(ep1.second, ep2.second) };
@@ -548,7 +548,7 @@ namespace vcd
             }
             case 5:
             {
-				if (pb_idx == -1) break; // should not happen, do not return any vcd paths
+				if (pb_idx == -1) return; // should not happen, do not return any vcd paths
 
                 v_l = { pb_l.first, ep1.second };
 
@@ -564,7 +564,7 @@ namespace vcd
             }
             case 6:
             {
-                if (pt_idx == -1) break; // should not happen, do not return any vcd paths
+                if (pt_idx == -1) return; // should not happen, do not return any vcd paths
 
                 v_l = { pt_l.first, ep1.second };
 
