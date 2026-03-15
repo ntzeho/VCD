@@ -2,7 +2,11 @@
 
 #include "vcd.h"
 
-bool is_zero(double a, double eps = 1e-9);
+const double EPSILON = 1e-9;
+const double MAX_COORD = 1e9;
+const double MIN_COORD = -1e9;
+
+bool is_zero(double a, double eps = EPSILON);
 int positive_mod(int a, int b);
 
 bool points_equal(const vcd::point& p1, const vcd::point& p2);

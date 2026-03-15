@@ -37,7 +37,7 @@ double cal_dist_xy(double x0, double x1, double y0, double y1)
 
 bool point_in_polygon(const std::vector<vcd::point>& polygon, const vcd::point& p)
 {
-    const int n = polygon.size();
+    const int n = static_cast<int>(polygon.size());
     int winding_no = 0;
 
     for (int i = 0; i < n; i++)
@@ -76,7 +76,7 @@ void cal_centroid(const std::vector<vcd::point>& vertices, vcd::point& centroid)
     /*
     Adapted from https://www.geeksforgeeks.org/dsa/find-the-centroid-of-a-non-self-intersecting-closed-polygon/
     */
-    int n = vertices.size();
+    const int n = static_cast<int>(vertices.size());
     double sum_x = 0;
     double sum_y = 0;
 
@@ -95,7 +95,7 @@ void cal_centroid(const std::vector<vcd::point>& vertices, vcd::point& centroid)
     double signed_area = 0;
 
     // For all vertices
-    for (int i = 0; i < vertices.size(); i++)
+    for (int i = 0; i < n; i++)
     {
         double x0 = vertices[i].first;
         double y0 = vertices[i].second;

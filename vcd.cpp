@@ -50,8 +50,6 @@ namespace vcd
         2 - up
         3 - both
         */
-
-        const double adj_coord = 0.001;
         double px = p.first;
         double py = p.second;
         point adj_point = { px, py };
@@ -61,7 +59,7 @@ namespace vcd
             // both endpoints on left side
 			*ep1_status = false;
             *ep2_status = false;
-            adj_point.first += adj_coord;
+            adj_point.first += SMALL_COORD_ADJ;
             if (point_in_polygon(boundary, adj_point)) return 3;
 			else return 0;
         }
@@ -70,7 +68,7 @@ namespace vcd
             // both endpoints on right side
             *ep1_status = true;
             *ep2_status = true;
-            adj_point.first -= adj_coord;
+            adj_point.first -= SMALL_COORD_ADJ;
             if (point_in_polygon(boundary, adj_point)) return 3;
             else return 0;
         }
@@ -81,19 +79,19 @@ namespace vcd
         if (ep1.second > py && ep2.second > py)
         {
             // both y higher, down
-			adj_point.second -= adj_coord;
+			adj_point.second -= SMALL_COORD_ADJ;
             if (point_in_polygon(boundary, adj_point)) return 1;
             else return 2;
         }
         else if (ep1.second < py && ep2.second < py)
         {
             // both y lower, up
-            adj_point.second += adj_coord;
+            adj_point.second += SMALL_COORD_ADJ;
             if (point_in_polygon(boundary, adj_point)) return 2;
 			else return 1;
         }
 
-        adj_point.second += adj_coord;
+        adj_point.second += SMALL_COORD_ADJ;
         if (point_in_polygon(boundary, adj_point)) return 2;
 		else return 1;
     }
@@ -108,7 +106,6 @@ namespace vcd
         2 - up
         3 - both
         */
-        const double adj_coord = 0.001;
         double px = p.first;
         double py = p.second;
         point adj_point = { px, py };
@@ -118,7 +115,7 @@ namespace vcd
             // both endpoints on left side
             *ep1_status = false;
             *ep2_status = false;
-            adj_point.first += adj_coord;
+            adj_point.first += SMALL_COORD_ADJ;
             if (point_in_polygon(obstacle, adj_point)) return 0;
             else return 3;
         }
@@ -127,7 +124,7 @@ namespace vcd
             // both endpoints on right side
             *ep1_status = true;
             *ep2_status = true;
-            adj_point.first -= adj_coord;
+            adj_point.first -= SMALL_COORD_ADJ;
             if (point_in_polygon(obstacle, adj_point)) return 0;
             else return 3;
         }
@@ -138,19 +135,19 @@ namespace vcd
         if (ep1.second > py && ep2.second > py)
         {
             // both y higher
-            adj_point.second -= adj_coord;
+            adj_point.second -= SMALL_COORD_ADJ;
             if (point_in_polygon(obstacle, adj_point)) return 2;
             else return 1;
         }
         else if (ep1.second < py && ep2.second < py)
         {
             // both y lower
-            adj_point.second += adj_coord;
+            adj_point.second += SMALL_COORD_ADJ;
             if (point_in_polygon(obstacle, adj_point)) return 1;
             else return 2;
         }
 
-        adj_point.second += adj_coord;
+        adj_point.second += SMALL_COORD_ADJ;
         if (point_in_polygon(obstacle, adj_point)) return 1;
         else return 2;
     }
@@ -225,7 +222,7 @@ namespace vcd
         double lowest_m_y, highest_m_y, min_y, max_y, xm;
         std::set<double> y_range;
 
-        for (int i = vertices.size() - 1; i > 0; i -= 2)
+        for (int i = static_cast<int>(vertices.size()) - 1; i > 0; i -= 2)
         {
             xm = vertices[i].first;
 			min_y = std::min(vertices[i].second, vertices[i - 1].second);
@@ -283,13 +280,12 @@ namespace vcd
 
     }
 
-	void vertical_cell_decomposition(const std::vector<point>& corridor, const std::vector<std::vector<point>>& obstacles, const std::set<point>& start_nodes, const point& end_node, std::vector<std::vector<point>>& vcd_paths)
+	void vertical_cell_decomposition(const std::vector<point>& corridor, int corridor_length, const std::vector<std::vector<point>>& obstacles, 
+        const std::set<point>& start_nodes, const point& end_node, std::vector<std::vector<point>>& vcd_paths)
 	{
         /*
-        
+        Obtains convex obstacle-free cells in corridor and connects start and end nodes to obtain all homotopically distinct paths
         */
-
-		const int corridor_length = corridor.size();
 
         std::map<point, std::set<point>> all_segments;
         std::map<point, int> obstacle_vertex_to_id;
@@ -309,7 +305,7 @@ namespace vcd
         std::map<double, std::set<double>> past_x_segments;
 
 		bool ep1_status, ep2_status;
-        int line_seg_type, vertex_type, pt_idx, pb_idx;
+        int line_seg_type, pt_idx, pb_idx;
         double v_x, v_y, y_small_max, y_large_min, y_intersect;
         double min_y = corridor[0].second;
         double max_y = min_y;
@@ -328,7 +324,7 @@ namespace vcd
         for (int i = 0; i < obstacles.size(); i++)
         {
 			std::vector<point> obstacle = obstacles[i];
-			const int obstacle_length = obstacle.size();
+			int obstacle_length = static_cast<int>(obstacle.size());
             for (int j = 0; j < obstacle_length; j++)
             {
 				all_segments[obstacle[j]] = { obstacle[positive_mod(j - 1, obstacle_length)], obstacle[(j + 1) % obstacle_length] };
@@ -376,14 +372,12 @@ namespace vcd
             }
 
             sweep_bottom.first = v_x;
-			sweep_top.first = v_x;
+            sweep_top.first = v_x;
 
-			vertex_type = cal_vertex_type(line_seg_type, ep1_status, ep2_status);
-
-            point midpoint1, midpoint2;
+			// determine line segment type and get intersection points with sweep line accordingly
+            // also update past x-segments for midpoint calculations
             pt_idx = -1;
             pb_idx = -1;
-
             switch (line_seg_type)
             {
             case 0:
@@ -393,7 +387,7 @@ namespace vcd
             }
             case 1:
             {
-                y_small_max = -1e12;
+                y_small_max = MIN_COORD;
                 for (int i = 0; i < current_edges.size(); i++)
                 {
 					point_set_iterator = current_edges[i].begin();
@@ -419,7 +413,7 @@ namespace vcd
             }
             case 2:
             {
-                y_large_min = 1e12;
+                y_large_min = MAX_COORD;
                 for (int i = 0; i < current_edges.size(); i++)
                 {
                     point_set_iterator = current_edges[i].begin();
@@ -445,8 +439,8 @@ namespace vcd
             }
             case 3:
             {
-                y_small_max = -1e12;
-                y_large_min = 1e12;
+                y_small_max = MIN_COORD;
+                y_large_min = MAX_COORD;
                 for (int i = 0; i < current_edges.size(); i++)
                 {
                     point_set_iterator = current_edges[i].begin();
@@ -490,7 +484,8 @@ namespace vcd
                 break;
             }
 
-            switch (vertex_type)
+			// determine vertex type and get trapezoid(s) accordingly
+            switch (cal_vertex_type(line_seg_type, ep1_status, ep2_status))
             {
             case 1:
             {
