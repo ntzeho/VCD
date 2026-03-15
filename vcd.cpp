@@ -294,7 +294,6 @@ namespace vcd
         std::vector<std::set<point>> current_edges;
         std::set<point> line_seg_endpoints;
         std::set<point>::iterator point_set_iterator;
-        std::set<double>::iterator x_seg_iterator;
         std::set<point> seg1, seg2;
 
         // for vcd algo, pt - top point, pb - bottom point
@@ -333,7 +332,6 @@ namespace vcd
             }
         }
 
-        double min_x = all_vertices.begin()->first;
         double max_x = prev(all_vertices.end())->first;
         
         for (const point v : all_vertices)
