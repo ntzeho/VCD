@@ -298,9 +298,10 @@ namespace vcd
 
         // for vcd algo, pt - top point, pb - bottom point
         point ep1, ep2, sweep_bottom, sweep_top, ls1, ls2, pt, pt_l, pb, pb_l, v_l_t, v_l_b, v_l;
-        trapezoid trapezoid1, trapezoid2;
-        std::vector<trapezoid> cells;
         std::map<double, std::set<double>> midpoints;
+        
+        // for plotting only
+        std::vector<trapezoid> cells;
         std::map<double, std::set<double>> past_x_segments;
 
 		bool ep1_status, ep2_status;
@@ -336,6 +337,7 @@ namespace vcd
         
         for (const point v : all_vertices)
         {
+            trapezoid trapezoid1, trapezoid2;
             v_x = v.first;
             v_y = v.second;
             line_seg_endpoints = all_segments[v];
